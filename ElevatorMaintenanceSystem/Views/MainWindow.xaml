@@ -3,71 +3,432 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:ElevatorMaintenanceSystem.Models"
         mc:Ignorable="d"
-        Title="Elevator Maintenance System" Height="450" Width="800"
-        WindowStartupLocation="CenterScreen">
+        Title="Elevator Maintenance System"
+        Width="1440"
+        Height="900"
+        MinWidth="1180"
+        MinHeight="760"
+        WindowStartupLocation="CenterScreen"
+        Background="#F4F7FB">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <Border Grid.Row="0" Background="#2C3E50" Padding="20">
-            <TextBlock Text="Elevator Maintenance Management System"
-                       Foreground="White"
-                       FontSize="24"
-                       FontWeight="Bold"/>
+        <Border Grid.Row="0"
+                Background="#17324D"
+                Padding="28,22">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Elevator Maintenance Management System"
+                               Foreground="White"
+                               FontSize="26"
+                               FontWeight="Bold" />
+                    <TextBlock Margin="0,6,0,0"
+                               Text="Dispatch office workspace for elevator and technician data."
+                               Foreground="#D4E2F0"
+                               FontSize="14" />
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="#24496D"
+                        CornerRadius="10"
+                        Padding="18,10"
+                        VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Text="Connection Status"
+                                   Foreground="#D4E2F0"
+                                   FontSize="12"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Margin="0,4,0,0"
+                                   Text="{Binding ConnectionStatus}"
+                                   Foreground="White"
+                                   FontSize="14"
+                                   FontWeight="Bold" />
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Border>
 
-        <!-- Main Content -->
-        <StackPanel Grid.Row="1" Margin="40" VerticalAlignment="Center">
-            <TextBlock Text="System Status"
-                       FontSize="28"
-                       FontWeight="Bold"
-                       Margin="0,0,0,20"
-                       HorizontalAlignment="Center"/>
+        <Border Grid.Row="1"
+                Margin="20"
+                Padding="20"
+                Background="White"
+                CornerRadius="18"
+                BorderBrush="#D8E1EA"
+                BorderThickness="1">
+            <TabControl Background="Transparent"
+                        BorderThickness="0">
+                <TabItem Header="Elevators">
+                    <Grid Margin="0,14,0,0"
+                          DataContext="{Binding ElevatorManagement}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.5*" />
+                            <ColumnDefinition Width="26" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-            <!-- Connection Status -->
-            <Border Background="#ECF0F1"
-                   Padding="30"
-                   CornerRadius="10"
-                   Margin="0,0,0,20">
-                <StackPanel>
-                    <TextBlock Text="Database Connection"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Margin="0,0,0,10"/>
+                        <Border Grid.Column="0"
+                                Padding="18"
+                                Background="#F7FAFD"
+                                BorderBrush="#D9E3EC"
+                                BorderThickness="1"
+                                CornerRadius="14">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
 
-                    <TextBlock Text="{Binding ConnectionStatus}"
-                               FontSize="14"
-                               Foreground="#27AE60"
-                               FontWeight="Medium"/>
-                </StackPanel>
-            </Border>
+                                <DockPanel>
+                                    <StackPanel DockPanel.Dock="Left">
+                                        <TextBlock Text="Elevator Profiles"
+                                                   FontSize="20"
+                                                   FontWeight="Bold"
+                                                   Foreground="#17324D" />
+                                        <TextBlock Margin="0,4,0,0"
+                                                   Text="Select an elevator to edit, or create a new inactive record for cleanup and testing."
+                                                   Foreground="#5F7184"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <Button DockPanel.Dock="Right"
+                                            MinWidth="110"
+                                            Padding="14,8"
+                                            Margin="12,0,0,0"
+                                            Command="{Binding LoadCommand}"
+                                            Content="Refresh" />
+                                </DockPanel>
 
-            <!-- Application Info -->
-            <Border Background="#ECF0F1"
-                   Padding="30"
-                   CornerRadius="10">
-                <StackPanel>
-                    <TextBlock Text="Application Information"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               Margin="0,0,0,10"/>
+                                <TextBlock Grid.Row="1"
+                                           Margin="0,14,0,10"
+                                           Text="{Binding StatusMessage}"
+                                           Foreground="#2F5D85"
+                                           FontWeight="SemiBold" />
 
-                    <TextBlock Text="Version: 1.0.0"
-                               FontSize="14"
-                               Margin="0,0,0,5"/>
+                                <DataGrid Grid.Row="2"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          HeadersVisibility="Column"
+                                          IsReadOnly="True"
+                                          ItemsSource="{Binding Elevators}"
+                                          SelectedItem="{Binding SelectedElevator, Mode=TwoWay}"
+                                          SelectionMode="Single"
+                                          GridLinesVisibility="Horizontal"
+                                          RowHeaderWidth="0">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Name"
+                                                            Width="1.2*"
+                                                            Binding="{Binding Name}" />
+                                        <DataGridTextColumn Header="Address"
+                                                            Width="1.8*"
+                                                            Binding="{Binding Address}" />
+                                        <DataGridTextColumn Header="Building"
+                                                            Width="*"
+                                                            Binding="{Binding BuildingName}" />
+                                        <DataGridTextColumn Header="Floor"
+                                                            Width="0.7*"
+                                                            Binding="{Binding FloorLabel}" />
+                                        <DataGridTextColumn Header="Manufacturer"
+                                                            Width="*"
+                                                            Binding="{Binding Manufacturer}" />
+                                        <DataGridTextColumn Header="Installed"
+                                                            Width="0.9*"
+                                                            Binding="{Binding InstallationDate, StringFormat=d}" />
+                                        <DataGridCheckBoxColumn Header="Active"
+                                                                Width="0.7*"
+                                                                Binding="{Binding IsActive}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
 
-                    <TextBlock Text="Framework: .NET 8.0 WPF"
-                               FontSize="14"
-                               Margin="0,0,0,5"/>
+                        <Border Grid.Column="2"
+                                Padding="18"
+                                Background="#FCFDFE"
+                                BorderBrush="#D9E3EC"
+                                BorderThickness="1"
+                                CornerRadius="14">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <TextBlock Text="Elevator Editor"
+                                               FontSize="20"
+                                               FontWeight="Bold"
+                                               Foreground="#17324D" />
+                                    <TextBlock Margin="0,4,0,18"
+                                               Text="Create, update, or remove inactive elevator records with GPS coordinates."
+                                               Foreground="#5F7184"
+                                               TextWrapping="Wrap" />
 
-                    <TextBlock Text="Database: MongoDB"
-                               FontSize="14"/>
-                </StackPanel>
-            </Border>
-        </StackPanel>
+                                    <UniformGrid Columns="2"
+                                                 Margin="0,0,0,14">
+                                        <StackPanel Margin="0,0,12,0">
+                                            <TextBlock Text="Name" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,6,0,0"
+                                                     Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="Manufacturer" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,6,0,0"
+                                                     Text="{Binding Manufacturer, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                    </UniformGrid>
+
+                                    <TextBlock Text="Address" FontWeight="SemiBold" />
+                                    <TextBox Margin="0,6,0,14"
+                                             Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}" />
+
+                                    <UniformGrid Columns="2"
+                                                 Margin="0,0,0,14">
+                                        <StackPanel Margin="0,0,12,0">
+                                            <TextBlock Text="Building" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,6,0,0"
+                                                     Text="{Binding BuildingName, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="Floor" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,6,0,0"
+                                                     Text="{Binding FloorLabel, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                    </UniformGrid>
+
+                                    <UniformGrid Columns="2"
+                                                 Margin="0,0,0,14">
+                                        <StackPanel Margin="0,0,12,0">
+                                            <TextBlock Text="Installation Date" FontWeight="SemiBold" />
+                                            <DatePicker Margin="0,6,0,0"
+                                                        SelectedDate="{Binding InstallationDate, Mode=TwoWay}" />
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="Active" FontWeight="SemiBold" />
+                                            <CheckBox Margin="0,10,0,0"
+                                                      IsChecked="{Binding IsActive, Mode=TwoWay}"
+                                                      Content="Elevator is active" />
+                                        </StackPanel>
+                                    </UniformGrid>
+
+                                    <UniformGrid Columns="2"
+                                                 Margin="0,0,0,18">
+                                        <StackPanel Margin="0,0,12,0">
+                                            <TextBlock Text="Latitude" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,6,0,0"
+                                                     Text="{Binding Latitude, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="Longitude" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,6,0,0"
+                                                     Text="{Binding Longitude, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                    </UniformGrid>
+
+                                    <WrapPanel ItemHeight="40"
+                                               ItemWidth="124">
+                                        <Button Margin="0,0,12,12"
+                                                Padding="14,8"
+                                                Command="{Binding SaveCommand}"
+                                                Content="Create" />
+                                        <Button Margin="0,0,12,12"
+                                                Padding="14,8"
+                                                Command="{Binding UpdateCommand}"
+                                                Content="Update" />
+                                        <Button Margin="0,0,12,12"
+                                                Padding="14,8"
+                                                Command="{Binding DeleteCommand}"
+                                                Content="Delete Inactive" />
+                                        <Button Margin="0,0,12,12"
+                                                Padding="14,8"
+                                                Command="{Binding ResetCommand}"
+                                                Content="Reset" />
+                                    </WrapPanel>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Workers">
+                    <Grid Margin="0,14,0,0"
+                          DataContext="{Binding WorkerManagement}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.5*" />
+                            <ColumnDefinition Width="26" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0"
+                                Padding="18"
+                                Background="#F7FAFD"
+                                BorderBrush="#D9E3EC"
+                                BorderThickness="1"
+                                CornerRadius="14">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <DockPanel>
+                                    <StackPanel DockPanel.Dock="Left">
+                                        <TextBlock Text="Worker Profiles"
+                                                   FontSize="20"
+                                                   FontWeight="Bold"
+                                                   Foreground="#17324D" />
+                                        <TextBlock Margin="0,4,0,0"
+                                                   Text="Manage contact details, technician skills, availability, and manual GPS updates."
+                                                   Foreground="#5F7184"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <Button DockPanel.Dock="Right"
+                                            MinWidth="110"
+                                            Padding="14,8"
+                                            Margin="12,0,0,0"
+                                            Command="{Binding LoadCommand}"
+                                            Content="Refresh" />
+                                </DockPanel>
+
+                                <TextBlock Grid.Row="1"
+                                           Margin="0,14,0,10"
+                                           Text="{Binding StatusMessage}"
+                                           Foreground="#2F5D85"
+                                           FontWeight="SemiBold" />
+
+                                <DataGrid Grid.Row="2"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          HeadersVisibility="Column"
+                                          IsReadOnly="True"
+                                          ItemsSource="{Binding Workers}"
+                                          SelectedItem="{Binding SelectedWorker, Mode=TwoWay}"
+                                          SelectionMode="Single"
+                                          GridLinesVisibility="Horizontal"
+                                          RowHeaderWidth="0">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Full Name"
+                                                            Width="1.2*"
+                                                            Binding="{Binding FullName}" />
+                                        <DataGridTextColumn Header="Email"
+                                                            Width="1.5*"
+                                                            Binding="{Binding Email}" />
+                                        <DataGridTextColumn Header="Phone"
+                                                            Width="*"
+                                                            Binding="{Binding PhoneNumber}" />
+                                        <DataGridTextColumn Header="Skills"
+                                                            Width="1.4*"
+                                                            Binding="{Binding Skills}" />
+                                        <DataGridTextColumn Header="Availability"
+                                                            Width="0.9*"
+                                                            Binding="{Binding AvailabilityStatus}" />
+                                        <DataGridTextColumn Header="Latitude"
+                                                            Width="0.9*"
+                                                            Binding="{Binding Location.Coordinates.Latitude, StringFormat=F5}" />
+                                        <DataGridTextColumn Header="Longitude"
+                                                            Width="0.9*"
+                                                            Binding="{Binding Location.Coordinates.Longitude, StringFormat=F5}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Column="2"
+                                Padding="18"
+                                Background="#FCFDFE"
+                                BorderBrush="#D9E3EC"
+                                BorderThickness="1"
+                                CornerRadius="14">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <TextBlock Text="Worker Editor"
+                                               FontSize="20"
+                                               FontWeight="Bold"
+                                               Foreground="#17324D" />
+                                    <TextBlock Margin="0,4,0,18"
+                                               Text="Create or update a technician, then use manual location updates for map-ready dispatch data."
+                                               Foreground="#5F7184"
+                                               TextWrapping="Wrap" />
+
+                                    <TextBlock Text="Full Name" FontWeight="SemiBold" />
+                                    <TextBox Margin="0,6,0,14"
+                                             Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" />
+
+                                    <UniformGrid Columns="2"
+                                                 Margin="0,0,0,14">
+                                        <StackPanel Margin="0,0,12,0">
+                                            <TextBlock Text="Email" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,6,0,0"
+                                                     Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="Phone" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,6,0,0"
+                                                     Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                    </UniformGrid>
+
+                                    <TextBlock Text="Skills (comma-separated)" FontWeight="SemiBold" />
+                                    <TextBox Margin="0,6,0,14"
+                                             Text="{Binding SkillsText, UpdateSourceTrigger=PropertyChanged}" />
+
+                                    <TextBlock Text="Availability" FontWeight="SemiBold" />
+                                    <ComboBox Margin="0,6,0,14"
+                                              SelectedValue="{Binding AvailabilityStatus, Mode=TwoWay}"
+                                              SelectedValuePath="Tag">
+                                        <ComboBoxItem Tag="{x:Static models:WorkerAvailabilityStatus.Available}" Content="Available" />
+                                        <ComboBoxItem Tag="{x:Static models:WorkerAvailabilityStatus.Assigned}" Content="Assigned" />
+                                        <ComboBoxItem Tag="{x:Static models:WorkerAvailabilityStatus.Unavailable}" Content="Unavailable" />
+                                    </ComboBox>
+
+                                    <UniformGrid Columns="2"
+                                                 Margin="0,0,0,18">
+                                        <StackPanel Margin="0,0,12,0">
+                                            <TextBlock Text="Latitude" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,6,0,0"
+                                                     Text="{Binding Latitude, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="Longitude" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,6,0,0"
+                                                     Text="{Binding Longitude, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                    </UniformGrid>
+
+                                    <WrapPanel ItemHeight="40"
+                                               ItemWidth="124">
+                                        <Button Margin="0,0,12,12"
+                                                Padding="14,8"
+                                                Command="{Binding SaveCommand}"
+                                                Content="Create" />
+                                        <Button Margin="0,0,12,12"
+                                                Padding="14,8"
+                                                Command="{Binding UpdateCommand}"
+                                                Content="Update" />
+                                        <Button Margin="0,0,12,12"
+                                                Padding="14,8"
+                                                Command="{Binding UpdateLocationCommand}"
+                                                Content="Update Location" />
+                                        <Button Margin="0,0,12,12"
+                                                Padding="14,8"
+                                                Command="{Binding DeactivateCommand}"
+                                                Content="Deactivate" />
+                                        <Button Margin="0,0,12,12"
+                                                Padding="14,8"
+                                                Command="{Binding ResetCommand}"
+                                                Content="Reset" />
+                                    </WrapPanel>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Border>
     </Grid>
 </Window>
