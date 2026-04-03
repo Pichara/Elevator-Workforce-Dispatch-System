@@ -4,7 +4,7 @@ using Serilog;
 using System.Windows;
 using ElevatorMaintenanceSystem.Infrastructure;
 using ElevatorMaintenanceSystem.Views;
-using ElevatorMaintenanceSystem.Data;
+using ElevatorMaintenanceSystem.ViewModels;
 
 namespace ElevatorMaintenanceSystem;
 
@@ -26,8 +26,10 @@ public partial class App : Application
                 services.AddSerilogLogging();
                 services.AddMongoDb();
                 services.AddRepositories();
+                services.AddTransient<ElevatorManagementViewModel>();
+                services.AddTransient<WorkerManagementViewModel>();
+                services.AddTransient<MainViewModel>();
                 services.AddTransient<MainWindow>();
-                services.AddTransient<ElevatorMaintenanceSystem.ViewModels.MainViewModel>();
             })
             .Build();
 

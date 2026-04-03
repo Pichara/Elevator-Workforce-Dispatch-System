@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using ElevatorMaintenanceSystem.Data;
 using ElevatorMaintenanceSystem.Infrastructure;
-using ElevatorMaintenanceSystem.ViewModels;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -14,19 +13,26 @@ public partial class MainViewModel : ViewModelBase
     private readonly MongoDbSettings _settings;
     private readonly ILogger<MainViewModel> _logger;
 
+    public ElevatorManagementViewModel ElevatorManagement { get; }
+
+    public WorkerManagementViewModel WorkerManagement { get; }
+
     [ObservableProperty]
     private string _connectionStatus = "Connecting...";
 
     public MainViewModel(
         IMongoDbContext context,
         MongoDbSettings settings,
+        ElevatorManagementViewModel elevatorManagement,
+        WorkerManagementViewModel workerManagement,
         ILogger<MainViewModel> logger)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        ElevatorManagement = elevatorManagement ?? throw new ArgumentNullException(nameof(elevatorManagement));
+        WorkerManagement = workerManagement ?? throw new ArgumentNullException(nameof(workerManagement));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        // Test connection on initialization
         _ = TestConnectionAsync();
     }
 
@@ -44,6 +50,9 @@ public partial class MainViewModel : ViewModelBase
             {
                 ConnectionStatus = $"Connected to MongoDB: {_settings.DatabaseName}";
                 _logger.LogInformation("Successfully connected to MongoDB database: {DatabaseName}", _settings.DatabaseName);
+
+                await ElevatorManagement.LoadElevatorsAsync();
+                await WorkerManagement.LoadWorkersAsync();
             }
             else
             {
