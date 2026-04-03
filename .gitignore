@@ -1,0 +1,50 @@
+# Visual Studio user-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build output
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+
+# IDE and editor state
+.vs/
+.vscode/
+.idea/
+
+# Test results and coverage
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# NuGet packages cache folders
+packages/
+**/packages/*
+!**/packages/build/
+
+# Logs
+logs/
+*.log
+
+# Local configuration and secrets
+appsettings.Development.json
+appsettings.Local.json
+appsettings.Production.json
+
+# OS-generated files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
