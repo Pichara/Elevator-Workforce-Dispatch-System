@@ -170,4 +170,83 @@ public class TicketRepository : MongoRepository<Ticket>, ITicketRepository
 
         return result.DeletedCount > 0;
     }
+
+    public async Task<IEnumerable<Ticket>> GetByStatusAsync(TicketStatus? status)
+    {
+        var filter = _filterBuilder.Eq(x => x.DeletedAt, null as DateTime?);
+
+        if (status.HasValue)
+        {
+            filter = _filterBuilder.And(filter, _filterBuilder.Eq(x => x.Status, status.Value));
+        }
+
+        return await _collection.Find(filter).ToListAsync();
+    }
+
+    public async Task<IEnumerable<Ticket>> GetByElevatorAsync(Guid elevatorId)
+    {
+        var filter = _filterBuilder.And(
+            _filterBuilder.Eq(x => x.DeletedAt, null as DateTime?),
+            _filterBuilder.Eq(x => x.ElevatorId, elevatorId));
+
+        return await _collection.Find(filter).ToListAsync();
+    }
+
+    public async Task<IEnumerable<Ticket>> GetByWorkerAsync(Guid workerId)
+    {
+        var filter = _filterBuilder.And(
+            _filterBuilder.Eq(x => x.DeletedAt, null as DateTime?),
+            _filterBuilder.Eq(x => x.AssignedWorkerId, workerId));
+
+        return await _collection.Find(filter).ToListAsync();
+    }
+
+    public async Task<IEnumerable<Ticket>> GetByDateRangeAsync(DateTime? fromDate, DateTime? toDate)
+    {
+        var filter = _filterBuilder.Eq(x => x.DeletedAt, null as DateTime?);
+
+        if (fromDate.HasValue)
+        {
+            filter = _filterBuilder.And(filter, _filterBuilder.Gte(x => x.RequestedDate, fromDate.Value));
+        }
+
+        if (toDate.HasValue)
+        {
+            filter = _filterBuilder.And(filter, _filterBuilder.Lte(x => x.RequestedDate, toDate.Value));
+        }
+
+        return await _collection.Find(filter).ToListAsync();
+    }
+
+    public async Task<IEnumerable<Ticket>> GetFilteredAsync(TicketStatus? status, Guid? elevatorId, Guid? workerId, DateTime? fromDate, DateTime? toDate)
+    {
+        var filter = _filterBuilder.Eq(x => x.DeletedAt, null as DateTime?);
+
+        if (status.HasValue)
+        {
+            filter = _filterBuilder.And(filter, _filterBuilder.Eq(x => x.Status, status.Value));
+        }
+
+        if (elevatorId.HasValue)
+        {
+            filter = _filterBuilder.And(filter, _filterBuilder.Eq(x => x.ElevatorId, elevatorId.Value));
+        }
+
+        if (workerId.HasValue)
+        {
+            filter = _filterBuilder.And(filter, _filterBuilder.Eq(x => x.AssignedWorkerId, workerId.Value));
+        }
+
+        if (fromDate.HasValue)
+        {
+            filter = _filterBuilder.And(filter, _filterBuilder.Gte(x => x.RequestedDate, fromDate.Value));
+        }
+
+        if (toDate.HasValue)
+        {
+            filter = _filterBuilder.And(filter, _filterBuilder.Lte(x => x.RequestedDate, toDate.Value));
+        }
+
+        return await _collection.Find(filter).ToListAsync();
+    }
 }
