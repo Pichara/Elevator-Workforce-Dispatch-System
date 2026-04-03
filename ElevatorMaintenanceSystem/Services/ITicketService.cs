@@ -19,4 +19,10 @@ public interface ITicketService
     Task<Ticket> CancelAsync(Guid ticketId);
 
     Task DeleteCanceledAsync(Guid ticketId);
+
+    Task<IEnumerable<Ticket>> GetByStatusAsync(TicketStatus? status);
+    Task<IEnumerable<Ticket>> GetByElevatorAsync(Guid elevatorId);
+    Task<IEnumerable<Ticket>> GetByWorkerAsync(Guid workerId);
+    Task<IEnumerable<Ticket>> GetByDateRangeAsync(DateTime? fromDate, DateTime? toDate);
+    Task<IEnumerable<Ticket>> GetFilteredAsync(TicketStatus? status, Guid? elevatorId, Guid? workerId, DateTime? fromDate, DateTime? toDate);
 }

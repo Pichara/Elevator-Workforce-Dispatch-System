@@ -213,4 +213,29 @@ public class TicketService : ITicketService
     {
         return status is TicketStatus.Assigned or TicketStatus.InProgress or TicketStatus.Resolved or TicketStatus.Closed;
     }
+
+    public async Task<IEnumerable<Ticket>> GetByStatusAsync(TicketStatus? status)
+    {
+        return await _ticketRepository.GetByStatusAsync(status);
+    }
+
+    public async Task<IEnumerable<Ticket>> GetByElevatorAsync(Guid elevatorId)
+    {
+        return await _ticketRepository.GetByElevatorAsync(elevatorId);
+    }
+
+    public async Task<IEnumerable<Ticket>> GetByWorkerAsync(Guid workerId)
+    {
+        return await _ticketRepository.GetByWorkerAsync(workerId);
+    }
+
+    public async Task<IEnumerable<Ticket>> GetByDateRangeAsync(DateTime? fromDate, DateTime? toDate)
+    {
+        return await _ticketRepository.GetByDateRangeAsync(fromDate, toDate);
+    }
+
+    public async Task<IEnumerable<Ticket>> GetFilteredAsync(TicketStatus? status, Guid? elevatorId, Guid? workerId, DateTime? fromDate, DateTime? toDate)
+    {
+        return await _ticketRepository.GetFilteredAsync(status, elevatorId, workerId, fromDate, toDate);
+    }
 }
