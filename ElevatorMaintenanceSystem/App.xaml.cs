@@ -3,8 +3,8 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using System.Windows;
 using ElevatorMaintenanceSystem.Infrastructure;
-using ElevatorMaintenanceSystem.Views;
 using ElevatorMaintenanceSystem.ViewModels;
+using ElevatorMaintenanceSystem.Views;
 
 namespace ElevatorMaintenanceSystem;
 
@@ -29,6 +29,7 @@ public partial class App : Application
                 services.AddTransient<ElevatorManagementViewModel>();
                 services.AddTransient<WorkerManagementViewModel>();
                 services.AddTransient<TicketManagementViewModel>();
+                services.AddTransient<MapViewModel>();
                 services.AddTransient<MainViewModel>();
                 services.AddTransient<MainWindow>();
             })

@@ -21,6 +21,8 @@ public partial class MainViewModel : ViewModelBase
 
     public TicketReportViewModel ReportManagement { get; }
 
+    public MapViewModel MapManagement { get; }
+
     [ObservableProperty]
     private string _connectionStatus = "Connecting...";
 
@@ -31,6 +33,7 @@ public partial class MainViewModel : ViewModelBase
         WorkerManagementViewModel workerManagement,
         TicketManagementViewModel ticketManagement,
         TicketReportViewModel reportManagement,
+        MapViewModel mapManagement,
         ILogger<MainViewModel> logger)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -39,6 +42,7 @@ public partial class MainViewModel : ViewModelBase
         WorkerManagement = workerManagement ?? throw new ArgumentNullException(nameof(workerManagement));
         TicketManagement = ticketManagement ?? throw new ArgumentNullException(nameof(ticketManagement));
         ReportManagement = reportManagement ?? throw new ArgumentNullException(nameof(reportManagement));
+        MapManagement = mapManagement ?? throw new ArgumentNullException(nameof(mapManagement));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _ = TestConnectionAsync();
@@ -62,6 +66,7 @@ public partial class MainViewModel : ViewModelBase
                 await ElevatorManagement.LoadElevatorsAsync();
                 await WorkerManagement.LoadWorkersAsync();
                 await TicketManagement.LoadTicketsAsync();
+                await MapManagement.LoadMapAsync();
             }
             else
             {

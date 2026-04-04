@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:ElevatorMaintenanceSystem.Models"
+        xmlns:views="clr-namespace:ElevatorMaintenanceSystem.Views"
         mc:Ignorable="d"
         Title="Elevator Maintenance System"
         Width="1440"
@@ -691,6 +692,13 @@
                                 </DataGrid>
                             </Grid>
                         </Border>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Map">
+                    <Grid Margin="0,14,0,0"
+                          DataContext="{Binding MapManagement}">
+                        <views:MapView/>
                     </Grid>
                 </TabItem>
 
