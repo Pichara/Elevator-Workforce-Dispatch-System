@@ -302,6 +302,31 @@ public class TicketManagementViewModelTests
             return Task.CompletedTask;
         }
 
+        public Task<IEnumerable<Ticket>> GetByStatusAsync(TicketStatus? status)
+        {
+            return Task.FromResult(ApplyFilters(status, null, null, null, null));
+        }
+
+        public Task<IEnumerable<Ticket>> GetByElevatorAsync(Guid elevatorId)
+        {
+            return Task.FromResult(ApplyFilters(null, elevatorId, null, null, null));
+        }
+
+        public Task<IEnumerable<Ticket>> GetByWorkerAsync(Guid workerId)
+        {
+            return Task.FromResult(ApplyFilters(null, null, workerId, null, null));
+        }
+
+        public Task<IEnumerable<Ticket>> GetByDateRangeAsync(DateTime? fromDate, DateTime? toDate)
+        {
+            return Task.FromResult(ApplyFilters(null, null, null, fromDate, toDate));
+        }
+
+        public Task<IEnumerable<Ticket>> GetFilteredAsync(TicketStatus? status, Guid? elevatorId, Guid? workerId, DateTime? fromDate, DateTime? toDate)
+        {
+            return Task.FromResult(ApplyFilters(status, elevatorId, workerId, fromDate, toDate));
+        }
+
         public void Replace(Ticket ticket)
         {
             var index = _items.FindIndex(item => item.Id == ticket.Id);
@@ -314,6 +339,19 @@ public class TicketManagementViewModelTests
         private Ticket RequireTicket(Guid ticketId)
         {
             return _items.First(ticket => ticket.Id == ticketId);
+        }
+
+        private IEnumerable<Ticket> ApplyFilters(TicketStatus? status, Guid? elevatorId, Guid? workerId, DateTime? fromDate, DateTime? toDate)
+        {
+            return _items
+                .Where(ticket => ticket.DeletedAt == null)
+                .Where(ticket => !status.HasValue || ticket.Status == status.Value)
+                .Where(ticket => !elevatorId.HasValue || ticket.ElevatorId == elevatorId.Value)
+                .Where(ticket => !workerId.HasValue || ticket.AssignedWorkerId == workerId.Value)
+                .Where(ticket => !fromDate.HasValue || ticket.RequestedDate >= fromDate.Value)
+                .Where(ticket => !toDate.HasValue || ticket.RequestedDate <= toDate.Value)
+                .OrderByDescending(ticket => ticket.RequestedDate)
+                .ToList();
         }
     }
 }

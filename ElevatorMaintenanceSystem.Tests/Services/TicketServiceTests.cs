@@ -437,5 +437,42 @@ public class TicketServiceTests
             var deleted = Items.RemoveAll(ticket => ticket.Id == ticketId && ticket.Status == TicketStatus.Canceled) > 0;
             return Task.FromResult(deleted);
         }
+
+        public Task<IEnumerable<Ticket>> GetByStatusAsync(TicketStatus? status)
+        {
+            return Task.FromResult(ApplyFilters(status, null, null, null, null));
+        }
+
+        public Task<IEnumerable<Ticket>> GetByElevatorAsync(Guid elevatorId)
+        {
+            return Task.FromResult(ApplyFilters(null, elevatorId, null, null, null));
+        }
+
+        public Task<IEnumerable<Ticket>> GetByWorkerAsync(Guid workerId)
+        {
+            return Task.FromResult(ApplyFilters(null, null, workerId, null, null));
+        }
+
+        public Task<IEnumerable<Ticket>> GetByDateRangeAsync(DateTime? fromDate, DateTime? toDate)
+        {
+            return Task.FromResult(ApplyFilters(null, null, null, fromDate, toDate));
+        }
+
+        public Task<IEnumerable<Ticket>> GetFilteredAsync(TicketStatus? status, Guid? elevatorId, Guid? workerId, DateTime? fromDate, DateTime? toDate)
+        {
+            return Task.FromResult(ApplyFilters(status, elevatorId, workerId, fromDate, toDate));
+        }
+
+        private IEnumerable<Ticket> ApplyFilters(TicketStatus? status, Guid? elevatorId, Guid? workerId, DateTime? fromDate, DateTime? toDate)
+        {
+            return Items
+                .Where(ticket => ticket.DeletedAt == null)
+                .Where(ticket => !status.HasValue || ticket.Status == status.Value)
+                .Where(ticket => !elevatorId.HasValue || ticket.ElevatorId == elevatorId.Value)
+                .Where(ticket => !workerId.HasValue || ticket.AssignedWorkerId == workerId.Value)
+                .Where(ticket => !fromDate.HasValue || ticket.RequestedDate >= fromDate.Value)
+                .Where(ticket => !toDate.HasValue || ticket.RequestedDate <= toDate.Value)
+                .ToList();
+        }
     }
 }
