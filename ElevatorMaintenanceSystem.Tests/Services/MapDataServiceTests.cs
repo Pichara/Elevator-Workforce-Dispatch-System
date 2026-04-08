@@ -122,6 +122,80 @@ public class MapDataServiceTests
     }
 
     [Fact]
+    public async Task BuildSnapshotAsync_MAP_07_AssignedAvailableWorkersUseAssignedAvailableMarkerKind()
+    {
+        // Arrange
+        var fixture = CreateFixture();
+        var assignedWorker = CreateWorker(
+            id: Guid.NewGuid(),
+            fullName: "Assigned Ava",
+            email: "assigned-ava@example.com",
+            phoneNumber: "555-1000",
+            skills: ["Repair"],
+            availabilityStatus: WorkerAvailabilityStatus.Available,
+            latitude: 43.4517,
+            longitude: -80.4926);
+
+        var unassignedWorker = CreateWorker(
+            id: Guid.NewGuid(),
+            fullName: "Unassigned Uma",
+            email: "unassigned-uma@example.com",
+            phoneNumber: "555-1001",
+            skills: ["Inspection"],
+            availabilityStatus: WorkerAvailabilityStatus.Available,
+            latitude: 43.4518,
+            longitude: -80.4927);
+
+        fixture.Workers.Add(assignedWorker);
+        fixture.Workers.Add(unassignedWorker);
+        fixture.Tickets.Add(CreateTicket(
+            id: Guid.NewGuid(),
+            elevatorId: Guid.NewGuid(),
+            assignedWorkerId: assignedWorker.Id,
+            status: TicketStatus.Assigned));
+
+        // Act
+        var snapshot = await fixture.Service.BuildSnapshotAsync();
+
+        // Assert
+        var assignedMarker = snapshot.Markers.Single(m => m.Title == "Assigned Ava");
+        var unassignedMarker = snapshot.Markers.Single(m => m.Title == "Unassigned Uma");
+
+        Assert.Equal("AssignedAvailableWorker", assignedMarker.Kind.ToString());
+        Assert.Equal(MapMarkerKind.AvailableWorker, unassignedMarker.Kind);
+    }
+
+    [Fact]
+    public async Task BuildSnapshotAsync_MAP_07_AssignedUnavailableWorkersUseAssignedUnavailableMarkerKind()
+    {
+        // Arrange
+        var fixture = CreateFixture();
+        var assignedWorker = CreateWorker(
+            id: Guid.NewGuid(),
+            fullName: "Assigned Noah",
+            email: "assigned-noah@example.com",
+            phoneNumber: "555-1002",
+            skills: ["Repair"],
+            availabilityStatus: WorkerAvailabilityStatus.Unavailable,
+            latitude: 43.4519,
+            longitude: -80.4928);
+
+        fixture.Workers.Add(assignedWorker);
+        fixture.Tickets.Add(CreateTicket(
+            id: Guid.NewGuid(),
+            elevatorId: Guid.NewGuid(),
+            assignedWorkerId: assignedWorker.Id,
+            status: TicketStatus.InProgress));
+
+        // Act
+        var snapshot = await fixture.Service.BuildSnapshotAsync();
+
+        // Assert
+        var assignedMarker = snapshot.Markers.Single(m => m.Title == "Assigned Noah");
+        Assert.Equal("AssignedUnavailableWorker", assignedMarker.Kind.ToString());
+    }
+
+    [Fact]
     public async Task BuildSnapshotAsync_SoftDeletedWorkersAreSkipped()
     {
         // Arrange
@@ -314,9 +388,10 @@ public class MapDataServiceTests
 
         var elevatorRepo = new FakeElevatorRepository();
         var workerRepo = new FakeWorkerRepository();
+        var ticketService = new FakeTicketService();
         var service = new MapDataService(elevatorRepo, workerRepo, settings);
 
-        return new MapDataServiceFixture(service, elevatorRepo, workerRepo, settings);
+        return new MapDataServiceFixture(service, elevatorRepo, workerRepo, ticketService, settings);
     }
 
     private static Elevator CreateElevator(
@@ -384,10 +459,30 @@ public class MapDataServiceTests
             new GeoJson2DGeographicCoordinates(longitude, latitude));
     }
 
+    private static Ticket CreateTicket(
+        Guid id,
+        Guid elevatorId,
+        Guid? assignedWorkerId,
+        TicketStatus status)
+    {
+        return new Ticket
+        {
+            Id = id,
+            ElevatorId = elevatorId,
+            AssignedWorkerId = assignedWorkerId,
+            Description = "Dispatch ticket",
+            IssueType = TicketIssueType.Mechanical,
+            Priority = TicketPriority.Medium,
+            RequestedDate = DateTime.UtcNow,
+            Status = status
+        };
+    }
+
     private sealed record MapDataServiceFixture(
         MapDataService Service,
         FakeElevatorRepository Elevators,
         FakeWorkerRepository Workers,
+        FakeTicketService Tickets,
         MapSettings Settings);
 
     private sealed class FakeElevatorRepository : IElevatorRepository
@@ -466,5 +561,27 @@ public class MapDataServiceTests
         public Task<long> CountAsync(FilterDefinition<Worker>? filter = null) => Task.FromResult<long>(_items.Count);
 
         public Task<IEnumerable<Worker>> GetActiveAsync() => Task.FromResult<IEnumerable<Worker>>(_items.Where(w => w.DeletedAt == null));
+    }
+
+    private sealed class FakeTicketService : ITicketService
+    {
+        private readonly List<Ticket> _items = [];
+
+        public void Add(Ticket ticket) => _items.Add(ticket);
+
+        public Task<IReadOnlyList<Ticket>> GetActiveAsync() => Task.FromResult<IReadOnlyList<Ticket>>(_items);
+
+        public Task<Ticket> CreateAsync(Guid elevatorId, string description, TicketIssueType issueType, TicketPriority priority, DateTime requestedDate) => throw new NotSupportedException();
+        public Task<Ticket> UpdateDetailsAsync(Guid ticketId, string description, TicketIssueType issueType, TicketPriority priority, DateTime requestedDate) => throw new NotSupportedException();
+        public Task<Ticket> AssignWorkerAsync(Guid ticketId, Guid workerId) => throw new NotSupportedException();
+        public Task<Ticket> UnassignWorkerAsync(Guid ticketId) => throw new NotSupportedException();
+        public Task<Ticket> ChangeStatusAsync(Guid ticketId, TicketStatus nextStatus) => throw new NotSupportedException();
+        public Task<Ticket> CancelAsync(Guid ticketId) => throw new NotSupportedException();
+        public Task DeleteCanceledAsync(Guid ticketId) => throw new NotSupportedException();
+        public Task<IEnumerable<Ticket>> GetByStatusAsync(TicketStatus? status) => throw new NotSupportedException();
+        public Task<IEnumerable<Ticket>> GetByElevatorAsync(Guid elevatorId) => throw new NotSupportedException();
+        public Task<IEnumerable<Ticket>> GetByWorkerAsync(Guid workerId) => throw new NotSupportedException();
+        public Task<IEnumerable<Ticket>> GetByDateRangeAsync(DateTime? fromDate, DateTime? toDate) => throw new NotSupportedException();
+        public Task<IEnumerable<Ticket>> GetFilteredAsync(TicketStatus? status, Guid? elevatorId, Guid? workerId, DateTime? fromDate, DateTime? toDate) => throw new NotSupportedException();
     }
 }
