@@ -5,7 +5,7 @@ namespace ElevatorMaintenanceSystem.Tests.Services;
 
 public class ProximityRankingServiceTests
 {
-    private readonly IProximityRankingService _sut = new PlaceholderProximityRankingService();
+    private readonly IProximityRankingService _sut = new ProximityRankingService();
 
     [Fact]
     public void RankWorkers_MAP_08_D_06_ComputesDistanceInKilometersForEachCandidate()
@@ -122,11 +122,45 @@ public class ProximityRankingServiceTests
         Assert.Equal(new[] { 1, 2, 3, 4 }, ranked.Select(x => x.Rank).ToArray());
     }
 
-    private sealed class PlaceholderProximityRankingService : IProximityRankingService
+    [Fact]
+    public void RankWorkers_ThrowsArgumentNullException_WhenRequestIsNull()
     {
-        public IReadOnlyList<WorkerProximitySuggestion> RankWorkers(ProximityRankRequest request, int maxResults = 10)
-        {
-            return [];
-        }
+        Assert.Throws<ArgumentNullException>(() => _sut.RankWorkers(null!));
+    }
+
+    [Fact]
+    public void RankWorkers_ThrowsArgumentOutOfRangeException_WhenMaxResultsIsZeroOrLess()
+    {
+        var request = new ProximityRankRequest(
+            SelectedTicketId: Guid.NewGuid(),
+            ElevatorId: Guid.NewGuid(),
+            ElevatorLatitude: 43.4516,
+            ElevatorLongitude: -80.4925,
+            Candidates:
+            [
+                new WorkerProximityCandidate(
+                    WorkerId: Guid.NewGuid(),
+                    DisplayName: "Candidate",
+                    Availability: WorkerAvailabilityStatus.Available,
+                    WorkerLatitude: 43.4517,
+                    WorkerLongitude: -80.4926)
+            ]);
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => _sut.RankWorkers(request, maxResults: 0));
+    }
+
+    [Fact]
+    public void RankWorkers_ReturnsEmpty_WhenCandidateListIsEmpty()
+    {
+        var request = new ProximityRankRequest(
+            SelectedTicketId: Guid.NewGuid(),
+            ElevatorId: Guid.NewGuid(),
+            ElevatorLatitude: 43.4516,
+            ElevatorLongitude: -80.4925,
+            Candidates: []);
+
+        var ranked = _sut.RankWorkers(request, maxResults: 10);
+
+        Assert.Empty(ranked);
     }
 }
