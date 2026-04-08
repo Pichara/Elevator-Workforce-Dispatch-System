@@ -57,14 +57,18 @@ public class MapViewModelTests
         // Arrange
         var snapshot = CreateTestSnapshot();
         _fakeMapDataService.SnapshotToReturn = snapshot;
+        var gate = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _fakeMapDataService.BuildSnapshotGate = gate;
 
         var viewModel = new MapViewModel(_fakeMapDataService, _mapSettings, _logger);
 
         // Act
         var loadTask = viewModel.LoadMapAsync();
+        await Task.Yield();
         Assert.Equal("Loading map data...", viewModel.StatusMessage);
         Assert.True(viewModel.IsBusy);
 
+        gate.SetResult(true);
         await loadTask;
 
         // Assert
@@ -124,12 +128,16 @@ public class MapViewModelTests
 
         var viewModel = new MapViewModel(_fakeMapDataService, _mapSettings, _logger);
         await viewModel.LoadMapAsync();
+        var gate = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _fakeMapDataService.BuildSnapshotGate = gate;
 
         // Act
         var refreshTask = viewModel.RefreshMapAsync();
+        await Task.Yield();
         Assert.Equal("Refreshing map data...", viewModel.StatusMessage);
         Assert.True(viewModel.IsBusy);
 
+        gate.SetResult(true);
         await refreshTask;
 
         // Assert
@@ -198,15 +206,19 @@ public class MapViewModelTests
         // Arrange
         var snapshot = CreateTestSnapshot();
         _fakeMapDataService.SnapshotToReturn = snapshot;
+        var gate = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _fakeMapDataService.BuildSnapshotGate = gate;
 
         var viewModel = new MapViewModel(_fakeMapDataService, _mapSettings, _logger);
 
         // Act
         var loadTask = viewModel.LoadMapAsync();
+        await Task.Yield();
 
         // Assert
         Assert.False(viewModel.RefreshMapCommand.CanExecute(null));
 
+        gate.SetResult(true);
         await loadTask;
         Assert.True(viewModel.RefreshMapCommand.CanExecute(null));
     }
@@ -291,20 +303,25 @@ public class MapViewModelTests
     {
         public MapDataSnapshot? SnapshotToReturn { get; set; }
         public Exception? ExceptionToThrow { get; set; }
+        public TaskCompletionSource<bool>? BuildSnapshotGate { get; set; }
         public int BuildSnapshotCallCount { get; private set; }
 
-        public Task<MapDataSnapshot> BuildSnapshotAsync(CancellationToken cancellationToken = default)
+        public async Task<MapDataSnapshot> BuildSnapshotAsync(CancellationToken cancellationToken = default)
         {
             BuildSnapshotCallCount++;
             if (ExceptionToThrow != null)
             {
                 throw ExceptionToThrow;
             }
+            if (BuildSnapshotGate is not null)
+            {
+                await BuildSnapshotGate.Task;
+            }
             if (SnapshotToReturn == null)
             {
                 throw new InvalidOperationException("No snapshot configured");
             }
-            return Task.FromResult(SnapshotToReturn);
+            return SnapshotToReturn;
         }
     }
 }
