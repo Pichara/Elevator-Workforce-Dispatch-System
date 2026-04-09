@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="2.28.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\ElevatorMaintenanceSystem\Models\*.cs" Link="Shared\Models\%(Filename)%(Extension)" />
+    <Compile Include="..\ElevatorMaintenanceSystem\Data\*.cs" Link="Shared\Data\%(Filename)%(Extension)" />
+    <Compile Include="..\ElevatorMaintenanceSystem\Services\IElevatorService.cs" Link="Shared\Services\IElevatorService.cs" />
+    <Compile Include="..\ElevatorMaintenanceSystem\Services\IWorkerService.cs" Link="Shared\Services\IWorkerService.cs" />
+    <Compile Include="..\ElevatorMaintenanceSystem\Services\ITicketService.cs" Link="Shared\Services\ITicketService.cs" />
+    <Compile Include="..\ElevatorMaintenanceSystem\Services\ElevatorService.cs" Link="Shared\Services\ElevatorService.cs" />
+    <Compile Include="..\ElevatorMaintenanceSystem\Services\WorkerService.cs" Link="Shared\Services\WorkerService.cs" />
+    <Compile Include="..\ElevatorMaintenanceSystem\Services\TicketService.cs" Link="Shared\Services\TicketService.cs" />
+    <Compile Include="..\ElevatorMaintenanceSystem\Services\TicketWorkflowPolicy.cs" Link="Shared\Services\TicketWorkflowPolicy.cs" />
+    <Compile Include="..\ElevatorMaintenanceSystem\Infrastructure\GpsCoordinateValidator.cs" Link="Shared\Infrastructure\GpsCoordinateValidator.cs" />
+    <Compile Include="..\ElevatorMaintenanceSystem\Infrastructure\MongoDbSettings.cs" Link="Shared\Infrastructure\MongoDbSettings.cs" />
+    <Compile Include="..\ElevatorMaintenanceSystem\Infrastructure\IUserContext.cs" Link="Shared\Infrastructure\IUserContext.cs" />
+    <Compile Include="..\ElevatorMaintenanceSystem\Infrastructure\WindowsUserContext.cs" Link="Shared\Infrastructure\WindowsUserContext.cs" />
+  </ItemGroup>
+
+</Project>

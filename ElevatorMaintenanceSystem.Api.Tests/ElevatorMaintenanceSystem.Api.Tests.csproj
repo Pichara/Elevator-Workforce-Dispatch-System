@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
     <PackageReference Include="xunit" Version="2.6.6" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7">
@@ -17,12 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ElevatorMaintenanceSystem\ElevatorMaintenanceSystem.csproj" />
+    <ProjectReference Include="..\ElevatorMaintenanceSystem.Api\ElevatorMaintenanceSystem.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Api\**\*.cs" />
-    <None Include="Api\**\*.cs" />
+    <Compile Include="..\ElevatorMaintenanceSystem.Tests\Api\**\*.cs" Link="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>
