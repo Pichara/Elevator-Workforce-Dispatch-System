@@ -66,7 +66,8 @@ public partial class MapView : UserControl
         }
 
         SendMapData();
-        await QueueMapLayoutRefreshAsync(requireMeasuredSurface: true, force: true);
+        // Don't force refresh on Loaded - let SizeChanged drive first-render
+        // after host has settled to a real measured surface
     }
 
     private async Task InitializeWebViewAsync()
@@ -228,6 +229,8 @@ public partial class MapView : UserControl
 
     private async void OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
+        // Visibility changed: send data and request refresh
+        // This is now a fallback for tab switching, not primary first-render
         if (e.NewValue is true)
         {
             SendMapData();
@@ -237,18 +240,23 @@ public partial class MapView : UserControl
 
     private void OnMapWebViewSizeChanged(object sender, SizeChangedEventArgs e)
     {
+        // Ignore zero-sized or invalid events
         if (!HasMeasuredSurface(e.NewSize))
         {
             return;
         }
 
+        // Debounce duplicate size notifications
         if (AreSizesEquivalent(_lastQueuedSurfaceSize, e.NewSize))
         {
             return;
         }
 
         _lastQueuedSurfaceSize = e.NewSize;
-        _ = QueueMapLayoutRefreshAsync(requireMeasuredSurface: true, force: false);
+        // Force refresh on first real size change to ensure first-render works
+        // even when Map is the startup tab
+        var isFirstRealSize = !HasMeasuredSurface(_lastRefreshedSurfaceSize);
+        _ = QueueMapLayoutRefreshAsync(requireMeasuredSurface: true, force: isFirstRealSize);
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)

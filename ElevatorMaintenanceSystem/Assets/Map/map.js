@@ -8,7 +8,7 @@ let currentBaseLayerName = 'standard';
 let layoutRefreshToken = 0;
 
 const DROP_TARGET_RADIUS_PX = 24;
-const LAYOUT_REFRESH_DELAYS_MS = [0, 80, 180];
+const LAYOUT_REFRESH_DELAYS_MS = [0, 50, 120, 200];
 
 const MARKER_STYLES = {
     elevator: {
